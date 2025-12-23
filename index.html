@@ -6,12 +6,6 @@
     <title>متجر Doxi - مستحضرات التجميل الفاخرة</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* إصلاح مؤقت لمشكلة تداخل النوافذ المنبثقة في حال فشل تحميل ملف CSS */
-        .modal {
-            display: none !important;
-        }
-    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -57,9 +51,6 @@
     <section id="products" class="products">
         <div class="container">
             <h2 class="section-title">منتجاتنا</h2>
-            
-
-
             <!-- Products Grid -->
             <div id="productsGrid" class="products-grid">
                 <!-- Products will be loaded here -->
@@ -91,7 +82,7 @@
                     <span>المجموع الفرعي:</span>
                     <span id="checkoutSubtotal">0 ريال</span>
                 </div>
-                <div class="summary-row discount-row" style="color: var(--color-red); display: none;">
+                <div class="summary-row discount-row" style="color: var(--danger-color); display: none;">
                     <span>الخصم:</span>
                     <span id="checkoutDiscount">0 ريال</span>
                 </div>
@@ -107,12 +98,14 @@
     <!-- Search Modal -->
     <div id="searchModal" class="modal">
         <div class="modal-content search-modal-content">
-            <span class="close-btn" onclick="closeSearchModal()">&times;</span>
+            <div class="modal-header">
+                <h2>البحث عن منتجات</h2>
+                <button class="close-btn" onclick="closeSearchModal()">&times;</button>
+            </div>
             <div class="search-bar-modal">
                 <input type="text" id="searchInputModal" class="search-input" placeholder="ابحثي عن منتج...">
-                <i class="fas fa-search"></i>
             </div>
-            <div class="filters-modal">
+            <div class="filters-modal" style="display: flex; gap: 10px; margin: 1rem 0;">
                 <select id="categoryFilterModal" class="filter-select">
                     <option value="">جميع التصنيفات</option>
                 </select>
@@ -133,8 +126,11 @@
     <!-- Admin Modal -->
     <div id="adminModal" class="modal">
         <div class="modal-content admin-modal-content">
-            <span class="close-btn" onclick="closeAdminModal()">&times;</span>
-            <div id="adminContent">
+            <div class="modal-header">
+                <h2>لوحة التحكم</h2>
+                <button class="close-btn" onclick="closeAdminModal()">&times;</button>
+            </div>
+            <div id="adminContent" class="admin-content">
                 <!-- Admin content will be loaded here -->
             </div>
         </div>
@@ -169,7 +165,7 @@
                     <textarea id="customerNotes"></textarea>
                 </div>
                 <div class="checkout-total">
-                    <p>المجموع: <strong id="checkoutTotal">0 ريال</strong></p>
+                    <p>المجموع: <strong id="finalCheckoutTotal">0 ريال</strong></p>
                 </div>
                 <button type="submit" class="btn btn-primary">إرسال الطلب عبر واتساب</button>
             </form>
@@ -179,48 +175,12 @@
     <!-- Product Detail Modal -->
     <div id="productModal" class="modal">
         <div class="modal-content product-modal-content">
-            <button class="close-btn" onclick="closeProductModal()">&times;</button>
+            <div class="modal-header">
+                <h2>تفاصيل المنتج</h2>
+                <button class="close-btn" onclick="closeProductModal()">&times;</button>
+            </div>
             <div id="productDetail" class="product-detail">
                 <!-- Product details will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Search Modal -->
-    <div id="searchModal" class="modal">
-        <div class="modal-content search-modal-content">
-            <span class="close-btn" onclick="closeSearchModal()">&times;</span>
-            <div class="search-bar-modal">
-                <input type="text" id="searchInputModal" class="search-input" placeholder="ابحثي عن منتج...">
-                <i class="fas fa-search"></i>
-            </div>
-            <div class="filters-modal">
-                <select id="categoryFilterModal" class="filter-select">
-                    <option value="">جميع التصنيفات</option>
-                </select>
-                <select id="priceFilterModal" class="filter-select">
-                    <option value="">جميع الأسعار</option>
-                    <option value="0-100">أقل من 100 ريال</option>
-                    <option value="100-200">100 - 200 ريال</option>
-                    <option value="200-500">200 - 500 ريال</option>
-                    <option value="500">أكثر من 500 ريال</option>
-                </select>
-            </div>
-            <div id="searchResultsGrid" class="products-grid">
-                <!-- Search results will be displayed here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Modal -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content admin-modal-content">
-            <div class="modal-header">
-                <h2>لوحة التحكم</h2>
-                <button class="close-btn" onclick="closeAdmin()">&times;</button>
-            </div>
-            <div id="adminContent" class="admin-content">
-                <!-- Admin content will be loaded here -->
             </div>
         </div>
     </div>
@@ -254,9 +214,9 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <script type="module" src="js/index.js"></script>
 </body>
