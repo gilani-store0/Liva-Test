@@ -57,7 +57,7 @@ function displayProducts(productsToDisplay) {
                     <span class="rating-count">(${product.reviewCount || 0})</span>
                 </div>
                 <div class="product-actions">
-                    <button class="product-actions button btn-add-cart" ${product.variants && product.variants.length > 0 ? 'disabled' : ''} onclick="addToCart('${product.id}')">
+                    <button class="product-actions button btn-add-cart" onclick="addToCart('${product.id}')">
                         <i class="fas fa-shopping-cart"></i> أضيفي
                     </button>
                     <button class="product-actions button btn-view-details" onclick="viewProductDetails('${product.id}')">
@@ -166,23 +166,6 @@ function addToCart(productId) {
 
 // View Product Details
 function viewProductDetails(productId) {
-    // ... (الكود الأصلي)
-    // ...
-    // Add event listener for variant change to update max quantity
-    if (product.variants && product.variants.length > 0) {
-        setTimeout(() => {
-            document.getElementById('variantSelect').addEventListener('change', (e) => {
-                const selectedOption = e.target.options[e.target.selectedIndex];
-                const maxStock = parseInt(selectedOption.getAttribute('data-stock'));
-                const quantityInput = document.getElementById('quantityInput');
-                quantityInput.max = maxStock;
-                if (parseInt(quantityInput.value) > maxStock) {
-                    quantityInput.value = maxStock;
-                }
-            });
-        }, 100); // تأخير بسيط لضمان تحميل DOM
-    }
-}
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
@@ -201,25 +184,36 @@ function viewProductDetails(productId) {
                 </div>
                 <p class="product-detail-description">${product.description || 'لا توجد وصف متاح'}</p>
                 
-	                ${product.variants && product.variants.length > 0 ? `
-	                    <div class="product-options">
-	                        <div class="option-group">
-	                            <label>الخيار:</label>
-	                            <select id="variantSelect">
-	                                ${product.variants.map(variant => `<option value="${variant.name}" data-stock="${variant.stock}">${variant.name} (المخزون: ${variant.stock})</option>`).join('')}
-	                            </select>
-	                        </div>
-	                    </div>
-	                ` : ''}
+                ${product.colors ? `
+                    <div class="product-options">
+                        <div class="option-group">
+                            <label>الألوان المتاحة:</label>
+                            <select id="colorSelect">
+                                ${product.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                ` : ''}
 
-	                <div class="quantity-selector">
-	                    <label>الكمية:</label>
-	                    <div class="quantity-input">
-	                        <button type="button" onclick="decreaseQuantity()">-</button>
-	                        <input type="number" id="quantityInput" value="1" min="1" max="${product.variants && product.variants.length > 0 ? product.variants[0].stock : product.stock || 100}">
-	                        <button type="button" onclick="increaseQuantity()">+</button>
-	                    </div>
-	                </div>
+                ${product.sizes ? `
+                    <div class="product-options">
+                        <div class="option-group">
+                            <label>الأحجام المتاحة:</label>
+                            <select id="sizeSelect">
+                                ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="quantity-selector">
+                    <label>الكمية:</label>
+                    <div class="quantity-input">
+                        <button type="button" onclick="decreaseQuantity()">-</button>
+                        <input type="number" id="quantityInput" value="1" min="1" max="${product.stock || 100}">
+                        <button type="button" onclick="increaseQuantity()">+</button>
+                    </div>
+                </div>
 
                 <div style="display: flex; gap: 1rem;">
                     <button class="btn btn-primary" onclick="addToCartFromDetail('${productId}')">
@@ -236,8 +230,6 @@ function viewProductDetails(productId) {
 
 // Add to Cart from Detail
 function addToCartFromDetail(productId) {
-    const variantSelect = document.getElementById('variantSelect');
-    const selectedVariant = variantSelect ? variantSelect.value : null;
     const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -252,8 +244,7 @@ function addToCartFromDetail(productId) {
             nameAr: product.nameAr,
             price: parseFloat(product.price),
             image: product.image,
-            quantity: quantity,
-            variant: selectedVariant
+            quantity: quantity
         });
     }
 
@@ -302,7 +293,7 @@ function displayCartItems() {
         <div class="cart-item">
             <img src="${item.image || 'https://via.placeholder.com/100x100'}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
             <div class="cart-item-info">
-	            <div class="cart-item-name">${item.nameAr} ${item.variant ? `(${item.variant})` : ''}</div>
+                <div class="cart-item-name">${item.nameAr}</div>
                 <div class="cart-item-price">${item.price} ريال</div>
             </div>
             <div class="cart-item-quantity">
@@ -336,21 +327,9 @@ function removeFromCart(index) {
 }
 
 function updateCartTotal() {
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    let total = subtotal;
-    let discount = 0;
-    const couponCode = localStorage.getItem('couponCode');
-
-    if (couponCode) {
-        // يتم تطبيق الخصم هنا (سيتم تطوير هذه الجزئية لاحقاً في هذه المرحلة)
-        // حالياً، سنفترض أن الخصم 10% إذا كان الكوبون موجوداً
-        discount = subtotal * 0.10;
-        total = subtotal - discount;
-    }
-
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     document.getElementById('cartTotal').textContent = total.toFixed(2) + ' ريال';
     document.getElementById('checkoutTotal').textContent = total.toFixed(2) + ' ريال';
-    // تحديث واجهة المستخدم لعرض الخصم (سيتم إضافة العناصر في HTML لاحقاً)
 }
 
 function updateCartCount() {
@@ -393,17 +372,7 @@ async function handleCheckout(e) {
     const address = document.getElementById('customerAddress').value;
     const notes = document.getElementById('customerNotes').value;
 
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    let total = subtotal;
-    let discount = 0;
-    const couponCode = localStorage.getItem('couponCode');
-
-    // إعادة حساب الخصم والتوتال
-    if (couponCode) {
-        // سيتم استبدال هذا المنطق بمنطق حقيقي للتحقق من الكوبون
-        discount = subtotal * 0.10;
-        total = subtotal - discount;
-    }
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     // Create order message for WhatsApp
     let orderMessage = `*طلب جديد من Doxi*\n\n`;
@@ -418,11 +387,7 @@ async function handleCheckout(e) {
         orderMessage += `${item.nameAr} x${item.quantity} = ${(item.price * item.quantity).toFixed(2)} ريال\n`;
     });
 
-    if (couponCode) {
-        orderMessage += `\n*كوبون الخصم:* ${couponCode}`;
-        orderMessage += `\n*قيمة الخصم:* ${discount.toFixed(2)} ريال`;
-    }
-    orderMessage += `\n*المجموع الكلي:* ${total.toFixed(2)} ريال\n`;
+    orderMessage += `\n*المجموع: ${total.toFixed(2)} ريال*\n`;
     if (notes) {
         orderMessage += `\nملاحظات: ${notes}`;
     }
@@ -436,9 +401,6 @@ async function handleCheckout(e) {
             customerAddress: address,
             customerNotes: notes,
             items: cart,
-            subtotal: subtotal,
-            discount: discount,
-            couponCode: couponCode,
             total: total,
             status: 'pending',
             createdAt: new Date(),
@@ -536,7 +498,38 @@ async function handleLogin(e) {
     }
 }
 
+async function loadAdminPanel() {
+    const adminContent = document.getElementById('adminContent');
+    // Check if user is logged in (already done in openAdmin, but good for safety)
+    if (!auth.currentUser) {
+        showLoginForm();
+        return;
+    }
 
+    adminContent.innerHTML = `
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('products')">المنتجات</button>
+            <button class="admin-tab" onclick="switchAdminTab('orders')">الطلبات</button>
+            <button class="admin-tab" onclick="switchAdminTab('logout')">تسجيل خروج</button>
+        </div>
+
+        <div id="productsTab" class="admin-tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>إدارة المنتجات</h3>
+                <button class="btn btn-primary add-product-btn" onclick="showProductForm()">+ إضافة منتج جديد</button>
+            </div>
+            <div id="productsList"></div>
+        </div>
+
+        <div id="ordersTab" class="admin-tab-content">
+            <h3>الطلبات</h3>
+            <div id="ordersList"></div>
+        </div>
+    `;
+
+    loadAdminProducts();
+    loadAdminOrders();
+}
 
 
 
@@ -662,7 +655,7 @@ function showProductForm(productId = null) {
             <h3>${isEdit ? 'تعديل المنتج: ' + product.nameAr : 'إضافة منتج جديد'}</h3>
             <button class="btn btn-secondary" onclick="loadAdminPanel()">العودة لإدارة المنتجات</button>
         </div>
-        <form id="productForm" class="product-form" onsubmit="handleProductFormSubmit(event)">
+        <form id="productForm" class="product-form">
             <input type="hidden" id="productId" value="${productId || ''}">
             
             <div class="form-group">
@@ -690,14 +683,6 @@ function showProductForm(productId = null) {
                 <input type="number" id="stock" value="${product.stock || 0}" required>
             </div>
 
-            <div class="form-group full-width">
-                <label>خيارات المنتج (Variants)</label>
-                <div id="variantsContainer">
-                    <!-- Variants will be loaded here -->
-                </div>
-                <button type="button" class="btn btn-secondary" onclick="addVariantField()">+ إضافة خيار</button>
-            </div>
-
             <div class="form-group">
                 <label for="isActive">الحالة</label>
                 <select id="isActive" required>
@@ -720,28 +705,7 @@ function showProductForm(productId = null) {
         </form>
     `;
 
-    // document.getElementById('productForm').addEventListener('submit', handleProductFormSubmit); // تم نقل الاستماع إلى onsubmit في HTML
-
-    // Load existing variants
-    if (isEdit && product.variants) {
-        product.variants.forEach(variant => addVariantField(variant.name, variant.stock));
-    } else {
-        addVariantField(); // Add one empty variant field by default
-    }
-}
-
-function addVariantField(name = '', stock = 0) {
-    const container = document.getElementById('variantsContainer');
-    const index = container.children.length;
-    const div = document.createElement('div');
-    div.classList.add('variant-group');
-    div.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
-    div.innerHTML = `
-        <input type="text" class="variant-name" placeholder="اسم الخيار (مثلاً: اللون الأحمر)" value="${name}" required>
-        <input type="number" class="variant-stock" placeholder="المخزون" value="${stock}" min="0" required>
-        <button type="button" class="btn btn-danger" onclick="this.parentNode.remove()">حذف</button>
-    `;
-    container.appendChild(div);
+    document.getElementById('productForm').addEventListener('submit', handleProductFormSubmit);
 }
 
 function editProduct(productId) {
@@ -757,18 +721,6 @@ async function handleProductFormSubmit(e) {
     const price = parseFloat(document.getElementById('price').value);
     const originalPrice = parseFloat(document.getElementById('originalPrice').value) || null;
     const stock = parseInt(document.getElementById('stock').value);
-
-    // Get Variants
-    const variantsContainer = document.getElementById('variantsContainer');
-    const variantGroups = variantsContainer.querySelectorAll('.variant-group');
-    const variants = [];
-    variantGroups.forEach(group => {
-        const name = group.querySelector('.variant-name').value;
-        const variantStock = parseInt(group.querySelector('.variant-stock').value);
-        if (name && variantStock >= 0) {
-            variants.push({ name, stock: variantStock });
-        }
-    });
     const isActive = document.getElementById('isActive').value === 'true';
     const image = document.getElementById('image').value;
     const description = document.getElementById('description').value;
@@ -786,7 +738,6 @@ async function handleProductFormSubmit(e) {
         originalPrice,
         stock,
         isActive,
-        variants,
         image,
         description,
         discount,
@@ -845,7 +796,7 @@ async function loadAdminProducts() {
                     <td><img src="${product.image || 'https://via.placeholder.com/50x50'}" alt="${product.nameAr}"></td>
                     <td>${product.nameAr}</td>
                     <td>${product.price} ريال</td>
-                    <td>${product.variants ? product.variants.map(v => `${v.name} (${v.stock})`).join('<br>') : (product.stock || 0)}</td>
+                    <td>${product.stock || 0}</td>
                     <td>
                         <select onchange="updateProductStatus('${doc.id}', this.value)">
                             <option value="true" ${product.isActive ? 'selected' : ''}>مفعل</option>
@@ -871,209 +822,3 @@ async function loadAdminProducts() {
 // function editProduct(productId) {
 //     showNotification('ميزة التعديل قريباً', 'info');
 // }
-
-// --- Coupon Management Functions (CRUD) ---
-
-async function loadAdminCoupons() {
-    try {
-        const snapshot = await db.collection('coupons').get();
-        const couponsList = document.getElementById('couponsList');
-
-        let html = '<table class="products-table"><thead><tr><th>الكود</th><th>النوع</th><th>القيمة</th><th>تاريخ الانتهاء</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>';
-
-        snapshot.forEach(doc => {
-            const coupon = doc.data();
-            const expiryDate = coupon.expiryDate ? new Date(coupon.expiryDate).toLocaleDateString('ar-SA') : 'لا يوجد';
-            html += `
-                <tr>
-                    <td>${coupon.code}</td>
-                    <td>${coupon.type === 'percentage' ? 'نسبة مئوية (%)' : 'مبلغ ثابت (ريال)'}</td>
-                    <td>${coupon.value}</td>
-                    <td>${expiryDate}</td>
-                    <td>
-                        <select onchange="updateCouponStatus('${doc.id}', this.value)">
-                            <option value="true" ${coupon.isActive ? 'selected' : ''}>مفعل</option>
-                            <option value="false" ${!coupon.isActive ? 'selected' : ''}>معطل</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button class="edit-btn" onclick="showCouponForm('${doc.id}')">تعديل</button>
-                        <button class="delete-btn" onclick="deleteCoupon('${doc.id}')">حذف</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += '</tbody></table>';
-        couponsList.innerHTML = html;
-    } catch (error) {
-        console.error('Error loading admin coupons:', error);
-    }
-}
-
-function showCouponForm(couponId = null) {
-    const adminContent = document.getElementById('adminContent');
-    const coupon = couponId ? products.find(p => p.id === couponId) : {};
-    const isEdit = !!couponId;
-
-    adminContent.innerHTML = `
-        <div class="admin-header">
-            <h3>${isEdit ? 'تعديل الكوبون: ' + coupon.code : 'إضافة كوبون جديد'}</h3>
-            <button class="btn btn-secondary" onclick="loadAdminPanel()">العودة لإدارة الكوبونات</button>
-        </div>
-        <form id="couponForm" class="product-form" onsubmit="handleCouponFormSubmit(event)">
-            <input type="hidden" id="couponId" value="${couponId || ''}">
-            
-            <div class="form-group">
-                <label for="couponCode">كود الكوبون</label>
-                <input type="text" id="couponCode" value="${coupon.code || ''}" required ${isEdit ? 'disabled' : ''}>
-            </div>
-            
-            <div class="form-group">
-                <label for="couponType">نوع الخصم</label>
-                <select id="couponType" required>
-                    <option value="percentage" ${coupon.type === 'percentage' ? 'selected' : ''}>نسبة مئوية (%)</option>
-                    <option value="fixed" ${coupon.type === 'fixed' ? 'selected' : ''}>مبلغ ثابت (ريال)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="couponValue">قيمة الخصم</label>
-                <input type="number" id="couponValue" value="${coupon.value || ''}" step="0.01" required>
-            </div>
-
-            <div class="form-group">
-                <label for="expiryDate">تاريخ الانتهاء (اختياري)</label>
-                <input type="date" id="expiryDate" value="${coupon.expiryDate || ''}">
-            </div>
-
-            <div class="form-group">
-                <label for="couponIsActive">الحالة</label>
-                <select id="couponIsActive" required>
-                    <option value="true" ${coupon.isActive !== false ? 'selected' : ''}>مفعل</option>
-                    <option value="false" ${coupon.isActive === false ? 'selected' : ''}>معطل</option>
-                </select>
-            </div>
-
-            <div class="form-group full-width">
-                <label for="minAmount">الحد الأدنى للطلب (اختياري)</label>
-                <input type="number" id="minAmount" value="${coupon.minAmount || 0}" step="0.01">
-            </div>
-
-            <button type="submit" class="btn btn-primary">${isEdit ? 'حفظ التعديلات' : 'إضافة الكوبون'}</button>
-        </form>
-    `;
-}
-
-async function handleCouponFormSubmit(e) {
-    e.preventDefault();
-
-    const couponId = document.getElementById('couponId').value;
-    const code = document.getElementById('couponCode').value.toUpperCase();
-    const type = document.getElementById('couponType').value;
-    const value = parseFloat(document.getElementById('couponValue').value);
-    const expiryDate = document.getElementById('expiryDate').value;
-    const isActive = document.getElementById('couponIsActive').value === 'true';
-    const minAmount = parseFloat(document.getElementById('minAmount').value) || 0;
-
-    const couponData = {
-        code,
-        type,
-        value,
-        expiryDate,
-        isActive,
-        minAmount,
-        createdAt: new Date().toISOString()
-    };
-
-    try {
-        if (couponId) {
-            // تعديل كوبون موجود
-            await db.collection('coupons').doc(couponId).update(couponData);
-            showNotification('تم تحديث الكوبون بنجاح', 'success');
-        } else {
-            // إضافة كوبون جديد
-            // التحقق من عدم تكرار الكود
-            const existing = await db.collection('coupons').where('code', '==', code).get();
-            if (!existing.empty) {
-                showNotification('كود الكوبون موجود بالفعل', 'error');
-                return;
-            }
-            await db.collection('coupons').add(couponData);
-            showNotification('تم إضافة الكوبون بنجاح', 'success');
-        }
-        
-        loadAdminCoupons();
-        switchAdminTab('coupons');
-
-    } catch (error) {
-        console.error('Error saving coupon:', error);
-        showNotification('خطأ في حفظ الكوبون: ' + error.message, 'error');
-    }
-}
-
-async function updateCouponStatus(couponId, status) {
-    try {
-        await db.collection('coupons').doc(couponId).update({
-            isActive: status === 'true'
-        });
-        showNotification('تم تحديث حالة الكوبون', 'success');
-        loadAdminCoupons();
-    } catch (error) {
-        showNotification('خطأ في تحديث حالة الكوبون', 'error');
-    }
-}
-
-async function deleteCoupon(couponId) {
-    if (confirm('هل أنت متأكد من حذف هذا الكوبون؟')) {
-        try {
-            await db.collection('coupons').doc(couponId).delete();
-            showNotification('تم حذف الكوبون بنجاح', 'success');
-            loadAdminCoupons();
-        } catch (error) {
-            showNotification('خطأ في حذف الكوبون', 'error');
-        }
-    }
-}
-
-// تعديل دالة loadAdminPanel لاستدعاء loadAdminCoupons
-async function loadAdminPanel() {
-    const adminContent = document.getElementById('adminContent');
-    // Check if user is logged in (already done in openAdmin, but good for safety)
-    if (!auth.currentUser) {
-        showLoginForm();
-        return;
-    }
-
-    adminContent.innerHTML = `
-        <div class="admin-tabs">
-            <button class="admin-tab active" onclick="switchAdminTab('products')">المنتجات</button>
-            <button class="admin-tab" onclick="switchAdminTab('orders')">الطلبات</button>
-            <button class="admin-tab" onclick="switchAdminTab('coupons')">الكوبونات</button>
-            <button class="admin-tab" onclick="switchAdminTab('logout')">تسجيل خروج</button>
-        </div>
-
-        <div id="productsTab" class="admin-tab-content active">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>إدارة المنتجات</h3>
-                <button class="btn btn-primary add-product-btn" onclick="showProductForm()">+ إضافة منتج جديد</button>
-            </div>
-            <div id="productsList"></div>
-        </div>
-
-        <div id="ordersTab" class="admin-tab-content">
-            <h3>الطلبات</h3>
-            <div id="ordersList"></div>
-        </div>
-
-        <div id="couponsTab" class="admin-tab-content">
-            <h3>إدارة كوبونات الخصم</h3>
-            <button class="btn btn-primary add-coupon-btn" onclick="showCouponForm()">+ إضافة كوبون جديد</button>
-            <div id="couponsList"></div>
-        </div>
-    `;
-
-    loadAdminProducts();
-    loadAdminOrders();
-    loadAdminCoupons(); // استدعاء دالة تحميل الكوبونات
-}
