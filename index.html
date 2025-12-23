@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر Doxi - مستحضرات التجميل الفاخرة</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <i class="fas fa-sparkles"></i>
+                    <span>Doxi</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link active">الرئيسية</a></li>
+                    <li><a href="#products" class="nav-link">المنتجات</a></li>
+                    <li><a href="#about" class="nav-link">عن المتجر</a></li>
+                    <li><a href="#contact" class="nav-link">تواصل معنا</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button id="cartBtn" class="cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" class="cart-count">0</span>
+                    </button>
+                    <button id="adminBtn" class="admin-btn" title="لوحة التحكم">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>اكتشفي جمالك الحقيقي</h1>
+            <p>مجموعة متميزة من أفضل منتجات التجميل والعناية بالبشرة من العلامات التجارية العالمية</p>
+            <button class="btn btn-primary" onclick="scrollToProducts()">تسوقي الآن</button>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="products">
+        <div class="container">
+            <h2 class="section-title">منتجاتنا</h2>
+            
+            <!-- Filter -->
+            <div class="filter-section">
+                <input type="text" id="searchInput" class="search-input" placeholder="ابحثي عن منتج...">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">جميع التصنيفات</option>
+                </select>
+                <select id="priceFilter" class="filter-select">
+                    <option value="">جميع الأسعار</option>
+                    <option value="0-100">أقل من 100 ريال</option>
+                    <option value="100-200">100 - 200 ريال</option>
+                    <option value="200-500">200 - 500 ريال</option>
+                    <option value="500">أكثر من 500 ريال</option>
+                </select>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="productsGrid" class="products-grid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>سلة التسوق</h2>
+                <button class="close-btn" onclick="closeCart()">&times;</button>
+            </div>
+            <div id="cartItems" class="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>المجموع:</span>
+                    <span id="cartTotal">0 ريال</span>
+                </div>
+                <button class="btn btn-primary" onclick="proceedToCheckout()">إتمام الشراء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إتمام الطلب</h2>
+                <button class="close-btn" onclick="closeCheckout()">&times;</button>
+            </div>
+            <form id="checkoutForm" class="checkout-form">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="customerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="customerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <textarea id="customerAddress" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات إضافية</label>
+                    <textarea id="customerNotes"></textarea>
+                </div>
+                <div class="checkout-total">
+                    <p>المجموع: <strong id="checkoutTotal">0 ريال</strong></p>
+                </div>
+                <button type="submit" class="btn btn-primary">إرسال الطلب عبر واتساب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content product-modal-content">
+            <button class="close-btn" onclick="closeProductModal()">&times;</button>
+            <div id="productDetail" class="product-detail">
+                <!-- Product details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content admin-modal-content">
+            <div class="modal-header">
+                <h2>لوحة التحكم</h2>
+                <button class="close-btn" onclick="closeAdmin()">&times;</button>
+            </div>
+            <div id="adminContent" class="admin-content">
+                <!-- Admin content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>عن Doxi</h3>
+                    <p>متجرك الأول للحصول على أفضل منتجات التجميل والعناية بالبشرة من العلامات التجارية العالمية.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>تواصلي معنا</h3>
+                    <p>البريد: info@doxi.com</p>
+                    <p>الهاتف: +966 50 123 4567</p>
+                </div>
+                <div class="footer-section">
+                    <h3>متابعة</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 متجر Doxi. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
