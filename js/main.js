@@ -11,6 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCart();
     setupEventListeners();
     checkAuthStatus();
+    
+    // تصدير الدوال للنافذة العالمية لتعمل مع onclick في HTML
+    window.scrollToProducts = scrollToProducts;
+    window.closeCart = closeCart;
+    window.applyCoupon = applyCoupon;
+    window.proceedToCheckout = proceedToCheckout;
+    window.closeSearchModal = closeSearchModal;
+    window.closeAdminModal = closeAdminModal;
+    window.closeCheckout = closeCheckout;
+    window.closeProductModal = closeProductModal;
+    window.addToCart = addToCart;
+    window.viewProductDetails = viewProductDetails;
+    window.addToCartFromDetail = addToCartFromDetail;
+    window.increaseQuantity = increaseQuantity;
+    window.decreaseQuantity = decreaseQuantity;
+    window.updateCartQuantity = updateCartQuantity;
+    window.removeFromCart = removeFromCart;
+    window.switchAdminTab = switchAdminTab;
+    window.showProductForm = showProductForm;
+    window.showCouponForm = showCouponForm;
+    window.loadAdminPanel = loadAdminPanel;
 });
 
 // Load Products from Firestore
@@ -391,10 +412,10 @@ async function updateCartTotal() {
         document.getElementById('couponMessage').textContent = '';
     }
 
-    document.getElementById('cartTotal').textContent = total.toFixed(2) + ' ريال';
-    document.getElementById('checkoutSubtotal').textContent = subtotal.toFixed(2) + ' ريال';
-    document.getElementById('checkoutDiscount').textContent = discount.toFixed(2) + ' ريال';
-    document.getElementById('checkoutTotal').textContent = total.toFixed(2) + ' ريال';
+    if (document.getElementById('checkoutSubtotal')) document.getElementById('checkoutSubtotal').textContent = subtotal.toFixed(2) + ' ريال';
+    if (document.getElementById('checkoutDiscount')) document.getElementById('checkoutDiscount').textContent = discount.toFixed(2) + ' ريال';
+    if (document.getElementById('checkoutTotal')) document.getElementById('checkoutTotal').textContent = total.toFixed(2) + ' ريال';
+    if (document.getElementById('finalCheckoutTotal')) document.getElementById('finalCheckoutTotal').textContent = total.toFixed(2) + ' ريال';
 }
 
 function updateCartCount() {
@@ -444,9 +465,11 @@ async function handleCheckout(e) {
 
     // إعادة حساب الخصم والتوتال
     if (couponCode) {
-        // سيتم استبدال هذا المنطق بمنطق حقيقي للتحقق من الكوبون
-        discount = subtotal * 0.10;
-        total = subtotal - discount;
+        const coupon = await getCouponDetails(couponCode);
+        if (coupon) {
+            discount = calculateDiscount(subtotal, coupon);
+            total = subtotal - discount;
+        }
     }
 
     // Create order message for WhatsApp
@@ -541,8 +564,11 @@ function openAdmin() {
 }
 // تم نقل دالة openAdmin وتعديلها في الأعلى
 
-function closeAdmin() {
-    document.getElementById('adminModal').classList.remove('active');
+function closeAdminModal() {
+    const adminModal = document.getElementById('adminModal');
+    if (adminModal) adminModal.classList.remove('active');
+    // إعادة تحميل المنتجات عند إغلاق لوحة التحكم
+    loadProducts();
 }
 
 function showLoginForm() {
@@ -625,8 +651,10 @@ function switchAdminTab(tab) {
     document.querySelectorAll('.admin-tab').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.remove('active'));
 
-    event.target.classList.add('active');
-    document.getElementById(tab + 'Tab').classList.add('active');
+    const activeBtn = document.querySelector(`.admin-tab[onclick*="${tab}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+    const tabContent = document.getElementById(tab + 'Tab');
+    if (tabContent) tabContent.classList.add('active');
 }
 
 async function updateProductStock(productId, newStock) {
@@ -1140,12 +1168,7 @@ async function loadAdminPanel() {
     loadAdminCoupons(); // استدعاء دالة تحميل الكوبونات
 }
 
-function closeAdminModal() {
-    const adminModal = document.getElementById('adminModal');
-    adminModal.classList.remove('active');
-    // إعادة تحميل المنتجات عند إغلاق لوحة التحكم
-    loadProducts();
-}
+
 
 // تعديل مستمع الحدث لزر لوحة التحكم لفتح النافذة المنبثقة
 document.getElementById('adminBtn').addEventListener('click', openAdmin);

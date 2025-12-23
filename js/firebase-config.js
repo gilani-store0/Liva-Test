@@ -1,9 +1,7 @@
 // ⚠️ تحذير مهم: استبدل هذه البيانات ببيانات مشروعك على Firebase
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
+// استخدام نسخة compat للتوافق مع الكود الحالي
+const firebase = window.firebase;
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,7 +18,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// const analytics = getAnalytics(app);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+export const db = firebase.firestore();
+export const auth = firebase.auth();
