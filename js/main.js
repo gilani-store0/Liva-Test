@@ -1,4 +1,4 @@
-//import { db, auth } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 // Global Variables
 let products = [];
 let cart = [];
@@ -874,7 +874,7 @@ async function handleProductFormSubmit(e) {
             showNotification('تم تحديث المنتج بنجاح', 'success');
         } else {
             // إضافة منتج جديد
-            const newProductId = window.uuidv4(); // استخدام uuidv4 لإنشاء ID فريد
+            const newProductId = uuidv4(); // استخدام uuidv4 لإنشاء ID فريد
             await db.collection('products').doc(newProductId).set(productData);
             showNotification('تم إضافة المنتج بنجاح', 'success');
         }
@@ -1249,18 +1249,3 @@ async function applyCoupon() {
     }
     updateCartTotal();
 }
-function openSearchModal() {
-    document.getElementById('searchModal').classList.add('active');
-}
-
-function closeSearchModal() {
-    document.getElementById('searchModal').classList.remove('active');
-}
-
-function openAdmin() {
-    alert('لوحة التحكم غير مفعلة حالياً');
-}
-
-function loadAdminPanel() {}
-function getCouponDetails() { return null; }
-function calculateDiscount() { return 0; }
