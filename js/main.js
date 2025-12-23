@@ -471,7 +471,7 @@ async function handleLogin(e) {
     const password = document.getElementById('loginPassword').value;
 
     try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        await auth.signInWithEmailAndPassword(email, password);
         loadAdminPanel();
     } catch (error) {
         showNotification('خطأ في تسجيل الدخول: ' + error.message, 'error');
