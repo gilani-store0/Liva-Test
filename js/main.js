@@ -427,7 +427,7 @@ async function handleCheckout(e) {
 
 // Admin Panel
 function openAdmin() {
-    firebase.auth().onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
         if (user) {
             loadAdminPanel();
             document.getElementById('adminModal').classList.add('active');
@@ -480,9 +480,8 @@ async function handleLogin(e) {
 
 async function loadAdminPanel() {
     const adminContent = document.getElementById('adminContent');
-    const user = firebase.auth().currentUser;
-
-    if (!user) {
+    // Check if user is logged in (already done in openAdmin, but good for safety)
+    if (!auth.currentUser) {
         showLoginForm();
         return;
     }
@@ -574,7 +573,7 @@ async function loadAdminOrders() {
 
 function switchAdminTab(tab) {
     if (tab === 'logout') {
-        firebase.auth().signOut();
+        auth.signOut();
         closeAdmin();
         showNotification('تم تسجيل الخروج', 'success');
         return;
@@ -627,7 +626,7 @@ function editProduct(productId) {
 
 // Auth Status
 function checkAuthStatus() {
-    firebase.auth().onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
         currentUser = user;
     });
 }
